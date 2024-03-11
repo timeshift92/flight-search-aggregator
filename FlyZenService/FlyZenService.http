@@ -1,0 +1,6 @@
+@FlyZenService_HostAddress = http://localhost:5255
+
+GET {{FlyZenService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
