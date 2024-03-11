@@ -26,7 +26,7 @@ var tickets = new List<Ticket>();
 app.MapGet("/flights", ([FromQuery] DateTime from, [FromQuery] DateTime to) =>
 {
 
-    if (to < from) return Results.BadRequest(new Error("400", "Date 'To' letter than Date 'from' "));
+    if (to < from) return Results.BadRequest(new Error("400", "Date 'To' less than Date 'from'"));
     var days = (to - from).TotalDays;
     tickets.Clear();
 
