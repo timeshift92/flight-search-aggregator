@@ -2,10 +2,10 @@
 using Aggregator.HostedServices.ZotFlight;
 using Riok.Mapperly.Abstractions;
 
-namespace Aggregator.HostedServices.FlyZen;
+namespace Aggregator.Infrastructure.Mapper;
 
 [Mapper]
-public static partial class FlyZenMapper
+public static partial class ZotFlightMapper
 {
     #region Usable
 
@@ -31,15 +31,15 @@ public static partial class FlyZenMapper
 
     private static FlightEntity To(this Flight src, Ticket ticket) => new()
     {
-        DepartureCity = src.DepartureCity,
-        DepartureTime = src.DepartureTime,
-        ArrivalCity = src.ArrivalCity,
-        ArrivalTime = src.ArrivalTime,
+        DepartureCity = src.Departure.City,
+        DepartureTime = src.Departure.Time,
+        ArrivalCity = src.Arrival.City,
+        ArrivalTime = src.Arrival.Time,
         Price = ticket.Price,
         Seats = ticket.SeatingCount,
         Airline = ticket.Airline,
         TicketNumber = ticket.Number,
-        Service = FlightService.FlyZen
+        Service = FlightService.ZotFlight
         
     };
 

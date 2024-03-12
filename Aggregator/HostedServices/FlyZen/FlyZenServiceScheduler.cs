@@ -2,6 +2,7 @@
 using Aggregator.HostedServices.ZotFlight;
 using Aggregator.Infrastructure.Mapper;
 using Coravel.Invocable;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aggregator.HostedServices.FlyZen;
 
@@ -10,7 +11,7 @@ public class FlyZenServiceScheduler(
     AppDbContext context,
     ILogger<FlyZenServiceScheduler> logger) : IInvocable
 {
-    private readonly HttpClient _client = httpClientFactory.CreateClient("ZotFlightService");
+    private readonly HttpClient _client = httpClientFactory.CreateClient("FlyZenService");
 
     public async Task Invoke()
     {
@@ -19,11 +20,6 @@ public class FlyZenServiceScheduler(
         try
         {
             var current = DateTime.Now;
-            var lastFlight = context.Flights.MaxBy(x => x.ArrivalTime);
-            if (lastFlight is not null)
-            {
-                current = lastFlight.ArrivalTime;
-            }
 
             var today = current.ToString("yyyy-M-d");
             var tenDays = current.AddDays(10).ToString("yyyy-M-d");

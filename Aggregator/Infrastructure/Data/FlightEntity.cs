@@ -11,17 +11,29 @@ namespace Aggregator.Data;
 [Index(nameof(ArrivalTime))]
 [Index(nameof(Price))]
 [Index(nameof(Seats))]
+[PrimaryKey(nameof(Id))]
 public class FlightEntity
 {
     [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    private long Id { get; set; }
+    public long Id { get; set; }
 
+    [MaxLength(70)]
     public string TicketNumber { get; set; } = null!;
-    public decimal Price { get; set; }
+    public decimal Price { get; init; }
+    [MaxLength(40)]
     public string Airline { get; set; } = null!;
+    [MaxLength(40)]
     public string DepartureCity { get; set; } = null!;
-    public DateTime DepartureTime { get; set; }
+    public DateTime DepartureTime { get; init; }
+    [MaxLength(40)]
     public string ArrivalCity { get; set; } = null!;
-    public DateTime ArrivalTime { get; set; }
+    public DateTime ArrivalTime { get; init; }
     public int Seats { get; set; }
+    public FlightService Service { get; set; }
+}
+
+public enum FlightService
+{
+    ZotFlight,
+    FlyZen
 }

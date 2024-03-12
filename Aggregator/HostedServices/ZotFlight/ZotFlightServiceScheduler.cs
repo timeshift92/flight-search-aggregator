@@ -1,9 +1,10 @@
 ﻿using Aggregator.Data;
-using Aggregator.HostedServices.ZotFlightModels;
+using Aggregator.HostedServices.ZotFlight;
 using Aggregator.Infrastructure.Mapper;
 using Coravel.Invocable;
+using Microsoft.EntityFrameworkCore;
 
-namespace Aggregator.HostedServices;
+namespace Aggregator.HostedServices.ZotFlight;
 
 public class ZotFlightServiceScheduler(
     IHttpClientFactory httpClientFactory,
@@ -19,11 +20,6 @@ public class ZotFlightServiceScheduler(
         try
         {
             var current = DateTime.Now;
-            var lastFlight = context.Flights.MaxBy(x => x.ArrivalTime);
-            if (lastFlight is not null)
-            {
-                current = lastFlight.ArrivalTime;
-            }
 
             var today = current.ToString("yyyy-M-d");
             var tenDays = current.AddDays(10).ToString("yyyy-M-d");

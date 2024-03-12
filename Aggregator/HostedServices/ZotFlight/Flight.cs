@@ -1,4 +1,4 @@
-﻿namespace Aggregator.HostedServices.ZotFlightModels
+﻿namespace Aggregator.HostedServices.ZotFlight
 {
    public record Flight(Departure Departure, Arrival Arrival);
 }

@@ -1,4 +1,4 @@
-﻿namespace FlyZenService.Models
+﻿namespace Aggregator.HostedServices.FlyZen
 {
     public class Ticket(string Number, string Airline, List<Flight> Flights, decimal Price, int SeatingCount)
     {

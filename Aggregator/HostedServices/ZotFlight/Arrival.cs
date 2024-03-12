@@ -1,4 +1,4 @@
-﻿namespace Aggregator.HostedServices.ZotFlightModels
+﻿namespace Aggregator.HostedServices.ZotFlight
 {
    public record Arrival(string City, DateTime Time);
 }

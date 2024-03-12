@@ -18,7 +18,7 @@ public partial class AppDbContext : DbContextBase
         _serviceScopeFactory = serviceScopeFactory;
     }
 
-    // public DbSet<TodoEntity> Tasks { get; protected set; } = null!;
+    public DbSet<FlightEntity> Flights { get; protected set; } = null!;
 
     // ActualLab.Fusion.EntityFramework tables
     public DbSet<DbOperation> Operations { get; protected set; } = null!;
