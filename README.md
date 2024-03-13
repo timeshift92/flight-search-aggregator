@@ -46,3 +46,42 @@ curl --location --request POST 'https://localhost:7211/flight/412-67-9971/order'
 ```
 
 
+# Aggregator
+
+в данном сервис есть два хосте сервиса для получение новых билетов из двух выше описанных серверов
+
+база данных использова sqllite
+
+фронт на блейзоре 
+первая страница с филтрами и сортировкой билетов
+а второя логи
+
+# города
+```
+curl -X 'GET' \
+  'https://localhost:7154/api/Ticket/cities?cityTypeEnum=1' \
+  -H 'accept: text/plain'
+```
+
+получаем список городов
+
+# рейсы
+
+```
+curl -X 'GET' \
+  'https://localhost:7154/api/Ticket/flights' \
+  -H 'accept: text/plain'
+```
+получаем список рейсов
+
+# Бронирование
+```
+curl -X 'POST' \
+  'https://localhost:7154/api/Ticket/take-order' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "flightId": 0
+}'
+```
+данный метод бронирует с отправкой на другие сервисы

@@ -33,7 +33,7 @@ sqliteLoggerConnectionStringBuilder.DataSource =
 string sqliteDbFilePath = sqliteLoggerConnectionStringBuilder.DataSource;
 
 // file logger path
-string serilogFileLoggerFilePath = Path.Combine(currentDir, "LogsFolder", "logs.log");
+string serilogFileLoggerFilePath = Path.Combine(currentDir, "Logs", "logs.log");
 
 builder.Host.UseSerilog((ctx, lc) => lc
     .MinimumLevel.Information()
