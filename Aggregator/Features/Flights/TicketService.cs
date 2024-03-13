@@ -1,4 +1,5 @@
-﻿using System.Reactive;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reactive;
 using ActualLab.Async;
 using ActualLab.Collections;
 using ActualLab.Fusion;
@@ -7,7 +8,7 @@ using Aggregator.Data;
 
 namespace Aggregator.Services;
 
-public class TicketService(DbHub<AppDbContext> dbHub) : ITicketService
+public class TicketService(DbHub<AppDbContext> dbHub,IHttpClientFactory httpClientFactory,ILogger<TicketService> logger) : ITicketService
 {
     private static HashSet<long> _flightIds = [];
     private static HashSet<string> _arrivalCities = [];
@@ -24,7 +25,7 @@ public class TicketService(DbHub<AppDbContext> dbHub) : ITicketService
         {
             var dbContext = dbHub.CreateDbContext();
             await using var _ = dbContext.ConfigureAwait(false);
-            var cities = dbContext.Flights.Select(x => new { x.DepartureCity, x.ArrivalCity }).ToList();
+            var cities = dbContext.Flights.Distinct().Select(x => new { x.DepartureCity, x.ArrivalCity }).Take(1500).ToList();
             cities.ForEach(x =>
             {
                 _cities.Add(x.DepartureCity);
@@ -33,8 +34,8 @@ public class TicketService(DbHub<AppDbContext> dbHub) : ITicketService
         }
 
         return search is null
-            ? _cities
-            : _cities.Where(x => x.Contains(search, StringComparison.CurrentCultureIgnoreCase)).ToHashSet();
+            ? _cities.Take(500).ToHashSet()
+            : _cities.Where(x => x.Contains(search, StringComparison.CurrentCultureIgnoreCase)).Take(500).ToHashSet();
     }
 
     public virtual async Task<HashSet<string>> GetAirlines(string? search,
@@ -60,11 +61,14 @@ public class TicketService(DbHub<AppDbContext> dbHub) : ITicketService
         List<FlightView> flights = [];
 
         flights = await GetFlight(_flightIds.ToArray(), cancellationToken);
+
+        if(query is null) return flights.Take(50).ToList();
+
         var qry = flights.AsQueryable();
-        if (string.IsNullOrEmpty(query.DepartureCity) ^ 
+        if (query == null || ( string.IsNullOrEmpty(query.DepartureCity) ^ 
             string.IsNullOrEmpty(query.ArrivalCity) ^
                                     query.ArrivalCity is null  ^ query.DepartureTime is null ^ query.Price == 0 ^ query.Airline is null
-            )
+            ))
         {
             qry = flights.Take(50).AsQueryable();
         };
@@ -147,13 +151,41 @@ public class TicketService(DbHub<AppDbContext> dbHub) : ITicketService
     public virtual async Task TakeOrder(TakeOrderCommand takeOrderCommand,
         CancellationToken cancellationToken = default)
     {
-        if (Computed.IsInvalidating())
+
+          if (Computed.IsInvalidating())
         {
             // await GetFlight(takeOrderCommand.FlightId, cancellationToken);
             return;
         }
 
-        throw new NotImplementedException();
+        await using var dbContext = await dbHub.CreateCommandDbContext(cancellationToken);
+        var flight = dbContext.Flights.First(x=>x.Id == takeOrderCommand.FlightId);
+        HttpResponseMessage? httpResponseMessage;
+        if(flight.Service == FlightServiceEnum.FlyZen)
+        {
+            HttpClient _client = httpClientFactory.CreateClient("FlyZenService");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"/tickets/{flight.TicketNumber}/order");
+            var result = await _client.SendAsync(request);
+            httpResponseMessage= result.EnsureSuccessStatusCode();
+
+        }
+        else
+        {
+             HttpClient _client = httpClientFactory.CreateClient("ZotFlightService");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"/flight/{flight.TicketNumber}/order");
+            var result = await _client.SendAsync(request);
+            httpResponseMessage= result.EnsureSuccessStatusCode();
+        }
+
+
+        if(httpResponseMessage.StatusCode != System.Net.HttpStatusCode.OK)
+        {
+            logger.LogError("cannot take order, something error");
+            throw new ValidationException("somthing error");
+        }
+
+      
+        
     }
 
     public virtual async Task SetFlightIds(SetFlightIdsCommand setFlightIdsCommand,

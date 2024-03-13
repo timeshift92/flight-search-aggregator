@@ -8,8 +8,7 @@ namespace Aggregator.Services;
 [ParameterComparer(typeof(ByValueParameterComparer))]
 public partial class FlightView
 {
-    [property: DataMember] public long Id { get; }
-
+    [property: DataMember] public long Id { get; set; }
     [property: DataMember] public string TicketNumber { get; set; } = null!;
     [property: DataMember] public decimal Price { get; init; }
     [property: DataMember] public string Airline { get; set; } = null!;

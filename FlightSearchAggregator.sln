@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyZenService", "FlyZenServ
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aggregator", "Aggregator\Aggregator.csproj", "{733F9C95-F73F-4DE2-AD27-CBEEBF2F925F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregator.Tests", "Aggregator.Tests\Aggregator.Tests.csproj", "{D179BF9F-9883-4BBF-8AD0-B89902A69456}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{733F9C95-F73F-4DE2-AD27-CBEEBF2F925F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{733F9C95-F73F-4DE2-AD27-CBEEBF2F925F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{733F9C95-F73F-4DE2-AD27-CBEEBF2F925F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D179BF9F-9883-4BBF-8AD0-B89902A69456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D179BF9F-9883-4BBF-8AD0-B89902A69456}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D179BF9F-9883-4BBF-8AD0-B89902A69456}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D179BF9F-9883-4BBF-8AD0-B89902A69456}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

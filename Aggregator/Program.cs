@@ -14,6 +14,12 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 
+
+#region Swagger
+builder.Services.AddControllers();
+builder.Services.AddSwaggerGen();
+#endregion
+
 #region Log
 
 var currentDir = Directory.GetCurrentDirectory();
@@ -50,7 +56,7 @@ builder.Host.UseSerilog((ctx, lc) => lc
 
 builder.Services.AddTransient<ZotFlightServiceScheduler>();
 builder.Services.AddTransient<FlyZenServiceScheduler>();
-    
+
 var cfg = builder.Configuration;
 var env = builder.Environment;
 
@@ -90,7 +96,7 @@ builder.Services.AddFusionService();
 
 #region DB
 
-builder.Services.AddQuickGridEntityFrameworkAdapter(); 
+builder.Services.AddQuickGridEntityFrameworkAdapter();
 builder.Services.AddDataBase<AppDbContext>(env, cfg);
 builder.Services.AddDbContext<ApplicationLoggerDbContext>(options =>
     options.UseSqlite(sqliteLoggerConnectionStringBuilder.ConnectionString)
@@ -100,13 +106,13 @@ builder.Services.AddDbContext<ApplicationLoggerDbContext>(options =>
 builder.Services.AddMudServices();
 
 var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+app.UseExceptionHandler("/Error");
+// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+app.UseHsts();
 
 app.Services.UseScheduler(scheduler =>
 {
@@ -127,6 +133,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.MapBlazorHub();
+app.MapControllers();
 app.MapRpcWebSocketServer();
 app.MapFallbackToPage("/_Host");
 
@@ -136,3 +143,5 @@ using var dbContext = dbContextFactory.CreateDbContext();
 // await dbContext.Database.EnsureDeletedAsync();
 dbContext.Database.EnsureCreated();
 app.Run();
+
+public partial class Program { }
