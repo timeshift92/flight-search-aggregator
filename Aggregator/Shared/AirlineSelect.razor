@@ -1,0 +1,45 @@
+﻿@using Aggregator.Services
+@using Microsoft.AspNetCore.WebUtilities
+@using ActualLab.Fusion
+@using System.Reflection.Metadata
+@inherits MixedStateComponent<HashSet<string>, string?>
+@inject ITicketService TickerService
+
+@{
+    var item = State.LastNonErrorValue;
+}
+
+<MudAutocomplete ResetValueOnEmptyText="true" Disabled="@Disabled"  Placeholder="@PlaceHolder" T="string?" Label="Cities" @bind-Value="City" @bind-Value:after="UpdateCity" SearchFunc="@Search1"/>
+
+@code {
+    [Parameter] public string? City { get; set; }
+    [Parameter]
+    public EventCallback<string> CityChanged { get; set; }
+    
+    private async Task UpdateCity()
+    {
+        await CityChanged.InvokeAsync(City);
+    }
+
+    [Parameter] public string PlaceHolder { get; set; } = null!;  
+    [Parameter] public bool Disabled { get; set; } = false;  
+    [Parameter] public string? ExcludeCity { get; set; }
+
+    private async Task<IEnumerable<string>> Search1(string value)
+    {
+        MutableState.Set(value); MutableState.Invalidate();
+        await Task.Delay(1);
+        return State.LastNonErrorValue.Where(x=>x != ExcludeCity);
+    }
+
+    protected override MutableState<string?>.Options GetMutableStateOptions()
+    {
+        return new MutableState<string?>.Options { InitialValue = City };
+    }
+
+    protected override Task<HashSet<string>> ComputeState(CancellationToken cancellationToken)
+    {
+        return TickerService.GetAirlines(MutableState.Value, cancellationToken);
+    }
+
+}

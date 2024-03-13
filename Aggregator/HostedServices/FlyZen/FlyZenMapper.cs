@@ -1,5 +1,6 @@
 ﻿using Aggregator.Data;
 using Aggregator.HostedServices.ZotFlight;
+using Aggregator.Services;
 using Riok.Mapperly.Abstractions;
 
 namespace Aggregator.HostedServices.FlyZen;
@@ -39,12 +40,12 @@ public static partial class FlyZenMapper
         Seats = ticket.SeatingCount,
         Airline = ticket.Airline,
         TicketNumber = ticket.Number,
-        Service = FlightService.FlyZen
-        
+        Service = FlightServiceEnum.FlyZen,
+        FlightCount = (new Random()).Next(0, 5)
     };
 
     private static List<FlightEntity> ToList(this List<Flight> src, Ticket ticket) =>
-        src.Select(f => f.To(ticket)).ToList();
+        src.Select((f) => f.To(ticket)).ToList();
 
     #endregion
 }

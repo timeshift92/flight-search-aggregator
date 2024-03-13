@@ -1,5 +1,6 @@
 ﻿using Aggregator.Data;
 using Aggregator.HostedServices.ZotFlight;
+using Aggregator.Services;
 using Riok.Mapperly.Abstractions;
 
 namespace Aggregator.Infrastructure.Mapper;
@@ -39,7 +40,7 @@ public static partial class ZotFlightMapper
         Seats = ticket.SeatingCount,
         Airline = ticket.Airline,
         TicketNumber = ticket.Number,
-        Service = FlightService.ZotFlight
+        Service = FlightServiceEnum.ZotFlight
         
     };
 

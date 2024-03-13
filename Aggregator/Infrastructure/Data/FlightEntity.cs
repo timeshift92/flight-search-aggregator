@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Aggregator.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aggregator.Data;
@@ -29,11 +30,6 @@ public class FlightEntity
     public string ArrivalCity { get; set; } = null!;
     public DateTime ArrivalTime { get; init; }
     public int Seats { get; set; }
-    public FlightService Service { get; set; }
-}
-
-public enum FlightService
-{
-    ZotFlight,
-    FlyZen
+    public int FlightCount { get; set; }
+    public FlightServiceEnum Service { get; set; }
 }

@@ -8,6 +8,7 @@ using ActualLab.Fusion.Server;
 using ActualLab.Multitenancy;
 using ActualLab.Rpc;
 using Aggregator.Data;
+using Aggregator.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aggregator.Infrastructure.ServiceCollection;
@@ -21,6 +22,7 @@ public static partial class ServiceCollection
         fusion.AddWebServer();
         fusion.AddOperationReprocessor();
         fusion.AddBlazor();
+        fusion.AddService<ITicketService, TicketService>();
 
         return services;
     }

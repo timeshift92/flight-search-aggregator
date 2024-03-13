@@ -5,21 +5,55 @@ using Aggregator.HostedServices.FlyZen;
 using Aggregator.HostedServices.ZotFlight;
 using Aggregator.Infrastructure.ServiceCollection;
 using Coravel;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+#region Log
+
+var currentDir = Directory.GetCurrentDirectory();
+
+// get connection string from configuration file (appsettings.json)
+string? sqliteLoggerConnectionString = builder.Configuration.GetConnectionString("SqliteLogger");
+SqliteConnectionStringBuilder sqliteLoggerConnectionStringBuilder =
+    new SqliteConnectionStringBuilder(sqliteLoggerConnectionString);
+sqliteLoggerConnectionStringBuilder.DataSource =
+    Path.Combine(currentDir, sqliteLoggerConnectionStringBuilder.DataSource);
+string sqliteDbFilePath = sqliteLoggerConnectionStringBuilder.DataSource;
+
+// file logger path
+string serilogFileLoggerFilePath = Path.Combine(currentDir, "LogsFolder", "logs.log");
+
 builder.Host.UseSerilog((ctx, lc) => lc
-    .WriteTo.Console()
-    .WriteTo.SQLite(@"Logs\log.db")
-    .ReadFrom.Configuration(ctx.Configuration));
+    .MinimumLevel.Information()
+    //.WriteTo.Console(new JsonFormatter(), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+    .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+    .WriteTo.SQLite(sqliteDbFilePath,
+        tableName: "Logs",
+        restrictedToMinimumLevel:
+        builder.Environment.IsDevelopment()
+            ? Serilog.Events.LogEventLevel.Information
+            : Serilog.Events.LogEventLevel.Warning,
+        storeTimestampInUtc: false,
+        batchSize:
+        builder.Environment.IsDevelopment() ? (uint)1 : (uint)100,
+        retentionPeriod: new TimeSpan(0, 1, 0, 0, 0),
+        maxDatabaseSize: 10)
+);
+
+#endregion
 
 builder.Services.AddTransient<ZotFlightServiceScheduler>();
 builder.Services.AddTransient<FlyZenServiceScheduler>();
+    
 var cfg = builder.Configuration;
 var env = builder.Environment;
+
 
 #region HttpClients
 
@@ -36,6 +70,7 @@ builder.Services.AddHttpClient("FlyZenService", (cl) =>
 });
 
 #endregion
+
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -55,9 +90,14 @@ builder.Services.AddFusionService();
 
 #region DB
 
+builder.Services.AddQuickGridEntityFrameworkAdapter(); 
 builder.Services.AddDataBase<AppDbContext>(env, cfg);
-
+builder.Services.AddDbContext<ApplicationLoggerDbContext>(options =>
+    options.UseSqlite(sqliteLoggerConnectionStringBuilder.ConnectionString)
+);
 #endregion
+
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
@@ -72,11 +112,11 @@ app.Services.UseScheduler(scheduler =>
 {
     scheduler
         .Schedule<ZotFlightServiceScheduler>()
-        .Cron("* * * * *")
+        .Cron("0 */5 * * *")
         .PreventOverlapping("ZotFlightServiceScheduler");
     scheduler
         .Schedule<FlyZenServiceScheduler>()
-        .Cron("* * * * *")
+        .Cron("0 */5 * * *")
         .PreventOverlapping("FlyZenServiceScheduler");
 });
 

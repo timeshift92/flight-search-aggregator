@@ -1,9 +1,109 @@
 ﻿@page "/"
+@inject ITicketService TicketService 
+@using Aggregator.Services
+@using ActualLab.Fusion
+TicketService
+@inherits MixedStateComponent<List<Aggregator.Services.FlightView>, Aggregator.Services.FlightQuery>
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<MudGrid>
+    <MudItem xs="6">
+        <CitiesSelect CityTypeEnum="CityTypeEnum.Departure" PlaceHolder="Departure" @bind-City="departureCity"></CitiesSelect>
+    </MudItem>
+    <MudItem xs="6">
+        <CitiesSelect  CityTypeEnum="CityTypeEnum.Departure" PlaceHolder="Arrival" @bind-City="arrivalCity" ExcludeCity="@departureCity"></CitiesSelect>
+    </MudItem>
+    <MudItem xs="3">
+        <MudDatePicker Label="DepartureTime" @bind-Date="departureTime"/>
+    </MudItem>
+    <MudItem xs="3">
+        <MudDatePicker Label="ArrivalTime" @bind-Date="arrivalTime"/>
+    </MudItem>
+    <MudItem xs="3">
+        <MudNumericField Placeholder="Price" @bind-Value="price"></MudNumericField >
+    </MudItem>
+    <MudItem xs="3">
+        <CitiesSelect PlaceHolder="Airline" @bind-City="airline"></CitiesSelect>
+    </MudItem>
+    <MudItem xs="3">
+                <MudNumericField  PlaceHolder="Flight Count" @bind-Value="flightCount"></MudNumericField >
+    </MudItem>
+    <MudItem xs="3">
+        <MudButton OnClick="search"> Search </MudButton>
+    </MudItem>
+</MudGrid>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<MudTable AllowUnsorted="true" Items="State.LastNonErrorValue" T="FlightView" Hover="true" SortLabel="Sort By" Elevation="0" FixedHeader="true" FixedFooter="true" Height="60vh" Dense="true" Striped="true">
+    <HeaderContent>
+        @foreach (var item in SortColumns)
+        {
+            <MudTh>
+                <MudTableSortLabel SortLabel="@item" T="FlightView" SortDirectionChanged='(SortDirection dir) => { SortTable(dir, item); }'> @item</MudTableSortLabel>
+            </MudTh>
+        }
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Airline">@context.Airline</MudTd>
+        <MudTd DataLabel="DepartureCity">@context.DepartureCity</MudTd>
+        <MudTd DataLabel="ArrivalCity">@context.ArrivalCity</MudTd>
+        <MudTd DataLabel="Price">@context.Price</MudTd>
+        <MudTd DataLabel="FlightCount">@context.FlightCount</MudTd>
+        <MudTd DataLabel="DepartureTime">@context.DepartureTime.ToString("MM/dd/yyyy HH:mm")</MudTd>
+        <MudTd DataLabel="ArrivalTime">@context.ArrivalTime.ToString("MM/dd/yyyy HH:mm")</MudTd>
+    </RowTemplate>
+</MudTable>
+
+
+@code
+{
+    public DateTime? departureTime = DateTime.Today;
+    public DateTime? arrivalTime;
+    public string? airline;
+    public decimal price;
+    public int flightCount;
+    public FlightQuery Query = new FlightQuery("", "", null, null, null, null, 0,new() { "FlightCount_asc" });
+    public string? departureCity;
+    public string? arrivalCity;
+    private string[] SortColumns = new string[] { "Airline", "DepartureCity", "ArrivalCity", "Price","FlightCount", "DepartureTime", "ArrivalTime" };
+    private Dictionary<string, string> sort = new Dictionary<string, string>();
+
+    public void search()
+    {
+        Query = Query with { DepartureCity = departureCity };
+        Query = Query with { ArrivalCity = arrivalCity };
+        Query = Query with { DepartureTime = departureTime };
+        Query = Query with { ArrivalTime = arrivalTime };
+        Query = Query with { Airline = airline };
+        Query = Query with { Price = price };
+        Query = Query with { FlightCount = flightCount };
+        MutableState.Set(Query);
+        MutableState.Invalidate();
+    }
+    public void SortTable(SortDirection dir, string label)
+    {
+        sort.Clear();
+        sort[label] = dir == SortDirection.Ascending ? "asc" : "desc";
+
+        if (sort.ContainsKey(label) && dir == SortDirection.None)
+        {
+            sort.Remove(label);
+        }
+
+        var list = sort.Select(x => $"{x.Key}_{x.Value}").ToList();
+        Query = Query with { OrderBy = list };
+        MutableState.Set(Query);
+        MutableState.Invalidate();
+    }
+
+    protected override MutableState<FlightQuery>.Options GetMutableStateOptions()
+    {
+        return new MutableState<FlightQuery>.Options { };
+    }
+
+    protected override async Task<List<FlightView>> ComputeState(CancellationToken cancellationToken)
+    {
+        return await TicketService.GetFlights(MutableState.Value, cancellationToken);
+    }
+}
