@@ -4,6 +4,7 @@ using ActualLab.Fusion.EntityFramework;
 using ActualLab.Fusion.EntityFramework.Operations;
 using ActualLab.Fusion.Extensions.Services;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Aggregator.Data;
 
@@ -22,6 +23,4 @@ public partial class AppDbContext : DbContextBase
 
     // ActualLab.Fusion.EntityFramework tables
     public DbSet<DbOperation> Operations { get; protected set; } = null!;
-
-   
 }

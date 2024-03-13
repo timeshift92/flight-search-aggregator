@@ -1,0 +1,39 @@
+﻿@page "/Logs"
+@using Aggregator.Data
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Align = Microsoft.AspNetCore.Components.QuickGrid.Align
+@inject ApplicationLoggerDbContext ctx
+<div class="page-size-chooser">
+    Items per page:
+    <select @bind="@_pagination.ItemsPerPage">
+        <option>5</option>
+        <option>10</option>
+        <option>20</option>
+        <option>50</option>
+    </select>
+</div>
+
+<div class="grid">
+    <QuickGrid Items="@_itemsQueryable" Pagination="@_pagination" T="Log">
+        <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="@(c => c.id)" Sortable="true" Class="country-name" />
+        <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="@(c => c.Timestamp)" Sortable="true" Align="Align.Right" />
+        <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="@(c => c.Level)" Sortable="true" Align="Align.Right" />
+        <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="@(c => c.Exception)" Sortable="true" Align="Align.Right" />
+        <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="@(c => c.RenderedMessage)" Sortable="true" Align="Align.Right" />
+        <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="@(c => c.Properties)" Sortable="true" Align="Align.Right" />
+    </QuickGrid>
+</div>
+<Paginator State="@_pagination" />
+
+@code {
+    PaginationState _pagination = new PaginationState { ItemsPerPage = 10 };
+    IQueryable<Log>? _itemsQueryable;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _itemsQueryable = ctx.Logs.AsQueryable();
+        _pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
+    }
+    
+   
+}
