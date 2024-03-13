@@ -1,24 +1,24 @@
-name: Build and deploy .NET Core application to Web App Aggregator20240314011252 with API Management Service Aggregatorapi-Aggregator
+name: Build and deploy .NET Core application to Web App FlyZenService20240314015749 with API Management Service FlyZenServiceapi-FlyZenService
 on:
   push:
     branches:
     - master
 env:
-  AZURE_WEBAPP_NAME: Aggregator20240314011252
-  AZURE_WEBAPP_PACKAGE_PATH: ZotFlightService\publish
+  AZURE_WEBAPP_NAME: FlyZenService20240314015749
+  AZURE_WEBAPP_PACKAGE_PATH: FlyZenService\publish
   AZURE_APIM_RESOURCE_PATH: /
   AZURE_APIM_RESOURCEGROUP: Aggregator20240314011252ResourceGroup
-  AZURE_APIM_SERVICENAME: Aggregatorapi
-  AZURE_APIM_API_ID: Aggregator
-  AZURE_APIM_APPSERVICEURL: https://aggregator20240314011252.azurewebsites.net
+  AZURE_APIM_SERVICENAME: FlyZenServiceapi
+  AZURE_APIM_API_ID: FlyZenService
+  AZURE_APIM_APPSERVICEURL: https://flyzenservice20240314015749.azurewebsites.net
   SWASHBUCLE_ASPNET_CORE_CLI_PACKAGE_VERSION: 5.6.3
   SWASHBUCKLE_DOTNET_CORE_VERSION: 3.1.x
-  API_IMPORT_SPECIFICATION_PATH: ZotFlightService\publish\swagger.json
-  API_IMPORT_DLL: ZotFlightService\bin\Release\net8.0\ZotFlightService.dll
+  API_IMPORT_SPECIFICATION_PATH: FlyZenService\publish\swagger.json
+  API_IMPORT_DLL: FlyZenService\bin\Release\net8.0\FlyZenService.dll
   API_IMPORT_VERSION: v1
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
-  WORKING_DIRECTORY: ZotFlightService
+  WORKING_DIRECTORY: FlyZenService
 jobs:
   build:
     runs-on: windows-latest
@@ -64,11 +64,11 @@ jobs:
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        publish-profile: ${{ secrets.Aggregator20240314011252_EF1B }}
+        publish-profile: ${{ secrets.FlyZenService20240314015749_20EC }}
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.Aggregatorapi_SPN }}
+        creds: ${{ secrets.FlyZenServiceapi_SPN }}
     - name: Import API into Azure API Management
       run: az apim api import --path "${{ env.AZURE_APIM_RESOURCE_PATH }}" --resource-group "${{ env.AZURE_APIM_RESOURCEGROUP }}" --service-name "${{ env.AZURE_APIM_SERVICENAME }}" --api-id "${{ env.AZURE_APIM_API_ID }}" --service-url "${{ env.AZURE_APIM_APPSERVICEURL }}" --specification-path "${{ env.API_IMPORT_SPECIFICATION_PATH }}" --specification-format OpenApi --subscription-required false
     - name: logout
