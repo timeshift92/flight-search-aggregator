@@ -1,4 +1,5 @@
 ﻿using System.Reactive;
+using ActualLab.CommandR;
 using Aggregator.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +8,7 @@ namespace Aggregator.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class TicketController(ITicketService ticketServiceImplementation)
+public class TicketController(ITicketService ticketServiceImplementation,ICommander commander)
 {
 
     [HttpGet("cities")]
@@ -22,8 +23,9 @@ public class TicketController(ITicketService ticketServiceImplementation)
         return ticketServiceImplementation.GetFlights(query, cancellationToken);
     }
     [HttpPost("take-order")]
-    public Task TakeOrder([FromBody] TakeOrderCommand takeOrderCommand, CancellationToken cancellationToken = default)
+    public async Task TakeOrder([FromBody] TakeOrderCommand takeOrderCommand, CancellationToken cancellationToken = default)
     {
-        return ticketServiceImplementation.TakeOrder(takeOrderCommand, cancellationToken);
+        await commander.Call(takeOrderCommand,cancellationToken);
+        
     }
 }
