@@ -32,7 +32,7 @@ app.MapGet("/flights", ([FromQuery] DateTime from, [FromQuery] DateTime to) =>
 
     for (int i = 0; i < days; i++)
     {
-        tickets.AddRange(TicketGenerator.Generate(new Random().Next(30, 60), from));
+        tickets.AddRange(TicketGenerator.Generate(new Random().Next(30, 60), from.AddDays(i+1)));
     }
 
     return Results.Ok(tickets);
