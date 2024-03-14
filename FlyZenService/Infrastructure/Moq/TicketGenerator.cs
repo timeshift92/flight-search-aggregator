@@ -18,7 +18,9 @@ public static class TicketGenerator
 
     static List<Flight> GenerateFlights(int flightCount, DateTime from)
     {
-        var flights = new List<Flight> { new(Faker.Address.City(), from, Faker.Address.City(), from.AddHours(1)) };
+        List<string> cities = ["Tashkent","Samarqand","Nukus","Jizzax","Andijon","Namangan","Fergana","Bukhara","Qarshi","Kokand","Margilan","Termez","Angren","Chirchiq","Navoiy","Urgench","Shahrisabz"];
+
+        var flights = new List<Flight> { new(cities[rnd.Next(0, cities.Count -1)] , from, cities[rnd.Next(0, cities.Count -1)], from.AddHours(1)) };
 
         for (int i = 1; i < flightCount; i++)
         {
@@ -29,7 +31,7 @@ public static class TicketGenerator
 
             flights.Add(new Flight(
                 prevFlight.ArrivalCity, nextDate,
-                Faker.Address.City(), nextDate.AddMinutes(times[rnd.Next(0, 2)] + 30)
+                cities[rnd.Next(0, cities.Count -1)], nextDate.AddMinutes(times[rnd.Next(0, 2)] + 30)
                 ));
         }
         return flights;
