@@ -118,11 +118,11 @@ app.Services.UseScheduler(scheduler =>
 {
     scheduler
         .Schedule<ZotFlightServiceScheduler>()
-        .Cron("* */5 * * *")
+        .Cron("*/5 * * * *")
         .PreventOverlapping("ZotFlightServiceScheduler");
     scheduler
         .Schedule<FlyZenServiceScheduler>()
-        .Cron("* */5 * * *")
+        .Cron("*/5 * * * *")
         .PreventOverlapping("FlyZenServiceScheduler");
 });
 
