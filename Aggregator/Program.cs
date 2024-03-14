@@ -140,7 +140,7 @@ app.MapFallbackToPage("/_Host");
 var dbContextFactory = app.Services.GetRequiredService<IDbContextFactory<AppDbContext>>();
 using var dbContext = dbContextFactory.CreateDbContext();
 //await dbContext.Database.MigrateAsync();
-// await dbContext.Database.EnsureDeletedAsync();
+await dbContext.Database.EnsureDeletedAsync();
 dbContext.Database.EnsureCreated();
 app.Run();
 
